@@ -16,8 +16,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
-@Path("/hello")
-public class GreetingResource {
+@Path("/hola")
+public class OtherGreetingResource {
 
     private ExecutorService myExecutorService;
 
@@ -26,17 +26,12 @@ public class GreetingResource {
     private ThreadContext threadContext;
 
     @Inject
-    public GreetingResource(ThreadContext threadContext, MyAsyncService myAsyncService) {
-        this.myExecutorService = createNewExecutor(32, "myThreadPool");
+    public OtherGreetingResource(ThreadContext threadContext, MyAsyncService myAsyncService,
+        @ManagedExecutorConfig(maxAsync = 10, maxQueued = 3, cleared = ThreadContext.ALL_REMAINING)
+        ManagedExecutor executor) {
+        this.myExecutorService = executor;
         this.myAsyncService = myAsyncService;
         this.threadContext = threadContext;
-    }
-
-    public static ForkJoinPool createNewExecutor(int poolSize, String poolName) {
-        return new ForkJoinPool(poolSize,
-            new QuarkusForkJoinWorkerThreadFactory(), null, true,
-            0, 0x7fff, 1, null, 500,
-            TimeUnit.MILLISECONDS);
     }
 
     @GET
